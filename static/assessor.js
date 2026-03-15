@@ -1,22 +1,25 @@
+// assessor.js
+// This file ONLY handles UI rendering.
+// ALL risk calculation happens in app.py via logistic regression.
+// This file does zero math — it just sends inputs to /predict and displays what comes back.
+
 const FACTOR_COLORS = {
   'Sea Surface Temp':  '#f97316',
   'Hour of Day':       '#eab308',
   'Current Speed':     '#22d3c8',
   'Migration Pattern': '#4ade80',
   'Target Species':    '#a78bfa',
-  'Geography':         '#94a3b8',
 };
 
-async function runPrediction() {
-  const btn    = document.getElementById('submitBtn');
-  const loader = document.getElementById('btnLoader');
-  const text   = btn.querySelector('.btn-text');
+async function runAssessment() {
+  const btn = document.getElementById('runBtn');
+  const err = document.getElementById('errorMsg');
 
-  btn.classList.add('loading');
-  btn.disabled  = true;
-  text.style.display  = 'none';
-  loader.style.display = 'inline';
+  btn.disabled    = true;
+  btn.textContent = 'Running model...';
+  err.style.display = 'none';
 
+  // Collect inputs
   const payload = {
     lat:       parseFloat(document.getElementById('lat').value),
     lon:       parseFloat(document.getElementById('lon').value),
@@ -30,62 +33,81 @@ async function runPrediction() {
   };
 
   try {
-    const res  = await fetch('/predict', {
-      method:  'POST',
+    // Send to Flask backend — logistic regression runs here
+    const response = await fetch('/predict', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload),
+      body: JSON.stringify(payload),
     });
-    const data = await res.json();
+
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+
+    // Get result from model
+    const data = await response.json();
+
+    // Render result — everything displayed comes directly from the model response
     renderResult(data);
-  } catch (err) {
-    console.error('Prediction failed:', err);
-    alert('Could not connect to the model server. Make sure app.py is running on port 5000.');
+
+  } catch (e) {
+    console.error(e);
+    err.style.display = 'block';
   } finally {
-    btn.classList.remove('loading');
-    btn.disabled     = false;
-    text.style.display   = 'inline';
-    loader.style.display = 'none';
+    btn.disabled    = false;
+    btn.textContent = 'Run Risk Assessment';
   }
 }
 
 function renderResult(data) {
-  const score = data.score;
-  const level = data.level;
+  // data.score           = raw probability 0-1 from model.predict_proba
+  // data.percent         = score * 100
+  // data.level           = HIGH / MEDIUM / LOW
+  // data.threshold       = 65th percentile threshold used to define risk label
+  // data.threshold_pct   = threshold * 100
+  // data.factors         = display-only factor breakdown (0-100 per factor)
 
-  document.getElementById('resultActive').style.display = 'block';
-  document.querySelector('.result-idle').style.display  = 'none';
+  const { score, percent, level, threshold_pct, factors } = data;
 
-  // Score number
-  document.getElementById('scoreBig').textContent = score.toFixed(2);
+  // Show result panel
+  document.getElementById('idleState').style.display  = 'none';
+  document.getElementById('resultState').style.display = 'block';
 
-  // Donut
-  const circumference = 2 * Math.PI * 50;
+  // Score percentage text
+  document.getElementById('scorePct').textContent = percent.toFixed(1) + '%';
+
+  // Animate donut ring
+  const circumference = 314.16; // 2 * pi * 50
   const offset = circumference * (1 - score);
-  const fill   = document.getElementById('donutFill');
-  fill.style.strokeDashoffset = offset;
+  const ring = document.getElementById('donutRing');
+  ring.style.strokeDashoffset = offset;
 
-  const donutColor = level === 'HIGH' ? '#f97316' : level === 'MEDIUM' ? '#eab308' : '#22c55e';
-  fill.style.stroke = donutColor;
-  document.getElementById('scoreBig').style.color = donutColor;
+  // Colour based on level
+  const colours = { HIGH: '#f97316', MEDIUM: '#eab308', LOW: '#22c55e' };
+  const colour  = colours[level] || '#22d3c8';
+  ring.style.stroke = colour;
+  document.getElementById('scorePct').style.color = colour;
 
-  // Badge
-  const badge = document.getElementById('riskBadge');
-  badge.textContent  = level + ' RISK';
-  badge.className    = 'risk-level-badge badge-' + level.toLowerCase();
+  // Risk badge
+  const badge = document.getElementById('levelBadge');
+  badge.textContent = level + ' RISK';
+  badge.className   = 'level-badge badge-' + level;
 
-  // Message
-  const messages = {
-    HIGH:   'Conditions strongly favour non-target species encountering your gear. Consider adjusting time of day, location, or gear configuration.',
-    MEDIUM: 'Moderate bycatch likelihood detected. Monitor conditions and consider preventative gear modifications.',
-    LOW:    'Current conditions present relatively low bycatch risk. Maintain standard monitoring practices.',
+  // Description
+  const descs = {
+    HIGH:   `The model gives a ${percent.toFixed(1)}% probability that current conditions exceed the critical risk threshold. Bycatch encounters are likely.`,
+    MEDIUM: `The model gives a ${percent.toFixed(1)}% probability that conditions exceed the risk threshold. Proceed with caution.`,
+    LOW:    `The model gives only a ${percent.toFixed(1)}% probability that conditions exceed the risk threshold. Risk is within safe bounds.`,
   };
-  document.getElementById('riskMessage').textContent = messages[level];
+  document.getElementById('resultDesc').textContent = descs[level];
 
-  // Factors
+  // Threshold line
+  document.getElementById('thresholdRow').innerHTML =
+    `Risk threshold: <span style="color:${colour};font-weight:600">${threshold_pct}%</span> of max environmental index`;
+
+  // Factor bars (display only — do not affect score)
   const fl = document.getElementById('factorList');
   fl.innerHTML = '';
-  Object.entries(data.factors).forEach(([name, pct]) => {
-    const color = FACTOR_COLORS[name] || '#22d3c8';
+  Object.entries(factors).forEach(([name, pct]) => {
+    const c = FACTOR_COLORS[name] || '#22d3c8';
     fl.innerHTML += `
       <div class="factor-item">
         <div class="factor-row">
@@ -93,28 +115,19 @@ function renderResult(data) {
           <span class="factor-pct">${pct}%</span>
         </div>
         <div class="factor-track">
-          <div class="factor-bar-fill" style="width:${pct}%; background:${color};"></div>
+          <div class="factor-fill" style="width:${pct}%;background:${c}"></div>
         </div>
       </div>`;
   });
 
   // Recommendation
   const recs = {
-    HIGH:   'Try fishing during midday (10am–2pm), targeting Wahoo or Mahi-Mahi in cooler waters below 22°C, and use more selective gear types.',
-    MEDIUM: 'Slight adjustments to time of day or target area could meaningfully reduce your risk score.',
-    LOW:    'Current parameters are well within safe thresholds. No immediate changes recommended.',
+    HIGH:   'Consider shifting to midday fishing (10am–2pm), targeting Wahoo or Mahi-Mahi in cooler waters (below 22°C), and areas with slower currents.',
+    MEDIUM: 'Small changes to time of day or location could push conditions below the risk threshold.',
+    LOW:    'Conditions are well within safe bounds. Standard monitoring practices are sufficient.',
   };
-  document.getElementById('recommendation').textContent = recs[level];
+  document.getElementById('recBox').textContent = recs[level];
 
   // Scroll sidebar into view on mobile
-  document.querySelector('.result-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.querySelector('.result-box').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-
-// Live input feedback
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('input, select').forEach(el => {
-    el.addEventListener('change', () => {
-      document.querySelector('.result-idle') && (document.querySelector('.result-idle').style.opacity = '0.5');
-    });
-  });
-});

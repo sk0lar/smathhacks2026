@@ -1,7 +1,6 @@
 services:
   - type: web
-    name: deepwatch-bycatch
+    name: deepwatch
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
-    rootDir: .

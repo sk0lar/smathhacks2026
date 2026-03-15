@@ -4,186 +4,181 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Risk Assessor — DeepWatch</title>
-<link rel="stylesheet" href="style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-<body class="assessor-page">
+<body class="page-assessor">
 
 <nav>
   <div class="nav-inner">
-    <a href="/" class="logo">
-      <span class="logo-mark"></span>
-      DeepWatch
-    </a>
+    <a href="/" class="logo"><span class="logo-dot"></span>DeepWatch</a>
     <div class="nav-links">
       <a href="/">Home</a>
-      <a href="/assessor" class="nav-cta active">Risk Assessor</a>
+      <a href="/assessor" class="btn-nav active">Risk Assessor →</a>
     </div>
   </div>
 </nav>
 
-<div class="assessor-layout">
+<div class="assessor-wrap">
 
-  <div class="assessor-sidebar">
-    <div class="sidebar-header">
+  <!-- LEFT: result panel -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
       <h1>Bycatch Risk<br>Assessor</h1>
-      <p>Enter your fishing conditions to receive a real-time bycatch probability score powered by logistic regression.</p>
+      <p>Enter fishing conditions to get a real-time risk score from our logistic regression model.</p>
+      <div class="model-note">
+        Risk score = P(env conditions exceed historical threshold)
+      </div>
     </div>
 
-    <div class="result-panel" id="resultPanel">
-      <div class="result-idle">
-        <div class="idle-icon"></div>
-        <p>Fill in conditions and run the model to see your risk score.</p>
+    <div class="result-box" id="resultBox">
+
+      <!-- idle state -->
+      <div class="idle-state" id="idleState">
+        <div class="idle-circle"></div>
+        <p>Fill in conditions and click <strong>Run Assessment</strong> to get your risk score.</p>
       </div>
 
-      <div class="result-active" id="resultActive" style="display:none">
-        <div class="result-score-wrap">
-          <svg class="donut" viewBox="0 0 120 120">
-            <circle class="donut-track" cx="60" cy="60" r="50" fill="none" stroke-width="10"/>
-            <circle class="donut-fill" id="donutFill" cx="60" cy="60" r="50" fill="none" stroke-width="10"
-              stroke-dasharray="314" stroke-dashoffset="314"
-              stroke-linecap="round" transform="rotate(-90 60 60)"/>
+      <!-- result state (hidden until prediction) -->
+      <div class="result-state" id="resultState" style="display:none">
+
+        <div class="donut-wrap">
+          <svg viewBox="0 0 120 120" class="donut-svg">
+            <circle class="donut-bg"   cx="60" cy="60" r="50" fill="none" stroke-width="10"/>
+            <circle class="donut-ring" cx="60" cy="60" r="50" fill="none" stroke-width="10"
+              id="donutRing"
+              stroke-dasharray="314.16" stroke-dashoffset="314.16"
+              stroke-linecap="round"
+              transform="rotate(-90 60 60)"/>
           </svg>
-          <div class="score-center">
-            <span class="score-big" id="scoreBig">0.00</span>
-            <span class="score-sub">risk score</span>
+          <div class="donut-center">
+            <span class="score-pct" id="scorePct">0%</span>
+            <span class="score-lbl">risk probability</span>
           </div>
         </div>
 
-        <div class="risk-level-badge" id="riskBadge">—</div>
+        <div class="level-badge" id="levelBadge">—</div>
 
-        <p class="risk-message" id="riskMessage"></p>
+        <p class="result-desc" id="resultDesc"></p>
 
+        <div class="threshold-row" id="thresholdRow"></div>
+
+        <div class="factors-title">What's driving this</div>
         <div class="factor-list" id="factorList"></div>
 
-        <div class="recommendation" id="recommendation"></div>
+        <div class="rec-box" id="recBox"></div>
       </div>
     </div>
-  </div>
+  </aside>
 
-  <div class="assessor-form-area">
-    <form id="assessorForm" onsubmit="return false;">
+  <!-- RIGHT: form -->
+  <main class="form-area">
 
-      <div class="form-section">
-        <div class="form-section-title">
-          <span class="section-num">01</span>
-          Location
+    <div class="form-block">
+      <div class="form-block-title"><span class="fn">01</span> Location</div>
+      <div class="row2">
+        <div class="fg">
+          <label>Latitude (°)</label>
+          <input type="number" id="lat" value="35.2" step="0.1" min="-90" max="90">
+          <span class="fhint">NC coast ≈ 33–36°N</span>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="lat">Latitude (°)</label>
-            <input type="number" id="lat" value="35.2" step="0.1" min="-90" max="90" placeholder="35.2">
-            <span class="form-hint">NC coast ≈ 33–36°N</span>
-          </div>
-          <div class="form-group">
-            <label for="lon">Longitude (°)</label>
-            <input type="number" id="lon" value="-75.6" step="0.1" min="-180" max="180" placeholder="-75.6">
-            <span class="form-hint">NC coast ≈ -75 to -77°W</span>
-          </div>
+        <div class="fg">
+          <label>Longitude (°)</label>
+          <input type="number" id="lon" value="-75.6" step="0.1" min="-180" max="180">
+          <span class="fhint">NC coast ≈ −75 to −77°W</span>
         </div>
       </div>
+    </div>
 
-      <div class="form-section">
-        <div class="form-section-title">
-          <span class="section-num">02</span>
-          Ocean Conditions
+    <div class="form-block">
+      <div class="form-block-title"><span class="fn">02</span> Ocean Conditions</div>
+      <div class="row3">
+        <div class="fg">
+          <label>Sea Surface Temp (°C)</label>
+          <input type="number" id="temp" value="27.5" step="0.1" min="0" max="40">
+          <span class="fhint">Peak risk: 25–28°C</span>
         </div>
-        <div class="form-row three">
-          <div class="form-group">
-            <label for="temp">Sea Surface Temp (°C)</label>
-            <input type="number" id="temp" value="27.5" step="0.1" min="0" max="40">
-            <span class="form-hint">Peak bycatch risk: 25–28°C</span>
-          </div>
-          <div class="form-group">
-            <label for="speed">Current Speed (kn)</label>
-            <input type="number" id="speed" value="3.8" step="0.1" min="0" max="10">
-            <span class="form-hint">Higher = more species aggregation</span>
-          </div>
-          <div class="form-group">
-            <label for="direction">Current Direction</label>
-            <select id="direction">
-              <option value="E">East</option>
-              <option value="SE">Southeast</option>
-              <option value="NE" selected>Northeast</option>
-              <option value="NW">Northwest</option>
-              <option value="N">North</option>
-              <option value="W">West</option>
-              <option value="SW">Southwest</option>
-              <option value="S">South</option>
-            </select>
-          </div>
+        <div class="fg">
+          <label>Current Speed (kn)</label>
+          <input type="number" id="speed" value="3.8" step="0.1" min="0" max="10">
+          <span class="fhint">Higher = more aggregation</span>
+        </div>
+        <div class="fg">
+          <label>Current Direction</label>
+          <select id="direction">
+            <option value="NE" selected>Northeast</option>
+            <option value="E">East</option>
+            <option value="SE">Southeast</option>
+            <option value="S">South</option>
+            <option value="SW">Southwest</option>
+            <option value="W">West</option>
+            <option value="NW">Northwest</option>
+            <option value="N">North</option>
+          </select>
         </div>
       </div>
+    </div>
 
-      <div class="form-section">
-        <div class="form-section-title">
-          <span class="section-num">03</span>
-          Fishing Conditions
+    <div class="form-block">
+      <div class="form-block-title"><span class="fn">03</span> Fishing Conditions</div>
+      <div class="row3">
+        <div class="fg">
+          <label>Hour of Day (0–23)</label>
+          <input type="number" id="hour" value="6" step="1" min="0" max="23">
+          <span class="fhint">Dawn/dusk = higher risk</span>
         </div>
-        <div class="form-row three">
-          <div class="form-group">
-            <label for="hour">Hour of Day (0–23)</label>
-            <input type="number" id="hour" value="6" step="1" min="0" max="23">
-            <span class="form-hint">Dawn/dusk = elevated risk</span>
-          </div>
-          <div class="form-group">
-            <label for="migration">Migration Pattern</label>
-            <select id="migration">
-              <option value="Stationary" selected>Stationary</option>
-              <option value="Southward">Southward</option>
-              <option value="Northward">Northward</option>
-              <option value="Eastward">Eastward</option>
-              <option value="Westward">Westward</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="species">Target Species</label>
-            <select id="species">
-              <option value="Yellowfin Tuna" selected>Yellowfin Tuna</option>
-              <option value="Bigeye Tuna">Bigeye Tuna</option>
-              <option value="Wahoo">Wahoo</option>
-              <option value="Mahi-Mahi">Mahi-Mahi</option>
-              <option value="Striped Marlin">Striped Marlin</option>
-            </select>
-          </div>
+        <div class="fg">
+          <label>Migration Pattern</label>
+          <select id="migration">
+            <option value="Stationary" selected>Stationary</option>
+            <option value="Southward">Southward</option>
+            <option value="Northward">Northward</option>
+            <option value="Eastward">Eastward</option>
+            <option value="Westward">Westward</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Target Species</label>
+          <select id="species">
+            <option value="Yellowfin Tuna" selected>Yellowfin Tuna</option>
+            <option value="Bigeye Tuna">Bigeye Tuna</option>
+            <option value="Wahoo">Wahoo</option>
+            <option value="Mahi-Mahi">Mahi-Mahi</option>
+            <option value="Striped Marlin">Striped Marlin</option>
+          </select>
         </div>
       </div>
+    </div>
 
-      <div class="form-section">
-        <div class="form-section-title">
-          <span class="section-num">04</span>
-          Catch Profile
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="fate">Prior Species Fate</label>
-            <select id="fate">
-              <option value="Discarded" selected>Discarded</option>
-              <option value="Kept">Kept</option>
-            </select>
-            <span class="form-hint">Whether prior catch was discarded</span>
-          </div>
+    <div class="form-block">
+      <div class="form-block-title"><span class="fn">04</span> Catch Profile</div>
+      <div class="row2">
+        <div class="fg">
+          <label>Prior Species Fate</label>
+          <select id="fate">
+            <option value="Discarded" selected>Discarded</option>
+            <option value="Kept">Kept</option>
+          </select>
+          <span class="fhint">Whether prior catch was kept or discarded</span>
         </div>
       </div>
+    </div>
 
-      <button type="button" class="submit-btn" id="submitBtn" onclick="runPrediction()">
-        <span class="btn-text">Run Risk Assessment</span>
-        <span class="btn-loader" id="btnLoader" style="display:none">Analyzing...</span>
-      </button>
+    <button class="run-btn" id="runBtn" onclick="runAssessment()">
+      Run Risk Assessment
+    </button>
+    <p class="error-msg" id="errorMsg" style="display:none">
+      Could not reach the model server. Check that app.py is running.
+    </p>
 
-    </form>
-  </div>
-
+  </main>
 </div>
 
 <footer>
   <div class="footer-inner">
-    <span class="logo">
-      <span class="logo-mark"></span>
-      DeepWatch
-    </span>
-    <span class="footer-note">Built for SMathHacks 2026 · Under the Sea</span>
+    <span class="logo"><span class="logo-dot"></span>DeepWatch</span>
+    <span style="color:var(--muted);font-size:13px;">SMathHacks 2026 · Under the Sea · NC Coastal Data</span>
   </div>
 </footer>
 

@@ -4,163 +4,172 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DeepWatch — Bycatch Risk Intelligence</title>
-<link rel="stylesheet" href="style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-<body class="home">
+<body>
 
 <nav>
   <div class="nav-inner">
-    <a href="/" class="logo">
-      <span class="logo-mark"></span>
-      DeepWatch
-    </a>
+    <a href="/" class="logo"><span class="logo-dot"></span>DeepWatch</a>
     <div class="nav-links">
       <a href="/">Home</a>
-      <a href="/assessor" class="nav-cta">Risk Assessor</a>
+      <a href="/assessor" class="btn-nav">Risk Assessor →</a>
     </div>
   </div>
 </nav>
 
 <section class="hero">
-  <div class="hero-bg">
-    <div class="wave wave1"></div>
-    <div class="wave wave2"></div>
-    <div class="wave wave3"></div>
-    <div class="particle-field" id="particles"></div>
-  </div>
-  <div class="hero-content">
-    <div class="hero-tag">North Carolina Coastal Waters</div>
-    <h1 class="hero-title">
-      Every cast leaves<br>
-      <span class="accent">an invisible wake.</span>
-    </h1>
-    <p class="hero-sub">
-      Commercial fishing discards up to 40% of its total catch as bycatch —
-      non-target species caught and killed unintentionally. DeepWatch uses
-      machine learning to predict and reduce that toll.
-    </p>
-    <div class="hero-actions">
+  <canvas id="ocean-canvas"></canvas>
+  <div class="hero-inner">
+    <div class="hero-tag">NC Coastal Waters · ML-Powered</div>
+    <h1>Every cast leaves<br><span class="accent">an invisible wake.</span></h1>
+    <p class="hero-desc">Up to 40% of all marine catch is unintended bycatch — non-target species caught and killed. DeepWatch uses logistic regression trained on real fishing data to predict bycatch risk before you cast.</p>
+    <div class="hero-btns">
       <a href="/assessor" class="btn-primary">Assess Your Risk</a>
       <a href="#problem" class="btn-ghost">Learn More</a>
     </div>
   </div>
-  <div class="hero-stat-strip">
-    <div class="stat">
-      <span class="stat-num">38M</span>
-      <span class="stat-label">tons of bycatch discarded annually</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat">
-      <span class="stat-num">40%</span>
-      <span class="stat-label">of all marine catch is unintended</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat">
-      <span class="stat-num">650K</span>
-      <span class="stat-label">whales, dolphins & seals killed yearly</span>
-    </div>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-n">38M</span><span class="stat-l">tons of bycatch discarded annually worldwide</span></div>
+    <div class="stat-sep"></div>
+    <div class="stat"><span class="stat-n">40%</span><span class="stat-l">of all marine catch is unintended</span></div>
+    <div class="stat-sep"></div>
+    <div class="stat"><span class="stat-n">650K</span><span class="stat-l">whales, dolphins &amp; seals killed per year</span></div>
   </div>
 </section>
 
-<section class="problem" id="problem">
+<section class="section" id="problem">
   <div class="section-inner">
     <div class="eyebrow">The Problem</div>
     <h2>A crisis hidden beneath the surface</h2>
-    <div class="problem-grid">
-      <div class="problem-card">
-        <div class="problem-icon icon-turtle"></div>
+    <div class="cards3">
+      <div class="card reveal">
+        <div class="card-icon">🐢</div>
         <h3>Sea Turtles</h3>
-        <p>All seven species of sea turtle are threatened or endangered. Longline and trawl fisheries in NC waters are a leading cause of injury and mortality.</p>
+        <p>All seven species of sea turtle are threatened or endangered. Longline and trawl fisheries off the NC coast are a leading cause of injury and mortality.</p>
       </div>
-      <div class="problem-card featured">
-        <div class="problem-icon icon-net"></div>
+      <div class="card card-featured reveal">
+        <div class="card-icon">🎣</div>
         <h3>Indiscriminate Gear</h3>
-        <p>Bottom trawls and gillnets can't distinguish between target and non-target species. Everything in their path is pulled aboard — most of it thrown back dead.</p>
+        <p>Bottom trawls and gillnets cannot distinguish target from non-target species. Everything in their path is hauled aboard — most of it thrown back dead.</p>
       </div>
-      <div class="problem-card">
-        <div class="problem-icon icon-dolphin"></div>
+      <div class="card reveal">
+        <div class="card-icon">🐬</div>
         <h3>Marine Mammals</h3>
-        <p>Dolphins, porpoises, and whales become entangled in fishing gear every day. Many drown before they can be freed. North Carolina's coast is a hotspot.</p>
+        <p>Dolphins, porpoises, and whales entangle in fishing gear daily. Many drown before they can be freed. North Carolina's coast is a major hotspot.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="nc-focus">
+<section class="section section-dark">
   <div class="section-inner split">
-    <div class="split-text">
+    <div class="split-text reveal">
       <div class="eyebrow">North Carolina</div>
-      <h2>Our coast. Our responsibility.</h2>
-      <p>The NC coast stretches 300+ miles, home to some of the Atlantic's richest fishing grounds — and its most vulnerable ecosystems. The Outer Banks, Pamlico Sound, and Cape Hatteras lie in the migration corridors of loggerhead turtles, spotted dolphins, and humpback whales.</p>
-      <p>Commercial fishing here generates over $100M per year, but the hidden cost in bycatch is staggering. Data from the NC Division of Marine Fisheries shows tens of thousands of non-target interactions annually.</p>
-      <a href="/assessor" class="btn-primary" style="margin-top: 1.5rem; display: inline-block;">Use the Risk Assessor</a>
+      <h2>Our coast.<br>Our responsibility.</h2>
+      <p>The NC coastline stretches 300+ miles, home to some of the Atlantic's richest fishing grounds — and its most fragile ecosystems. The Outer Banks, Pamlico Sound, and Cape Hatteras sit in the migration corridors of loggerhead turtles, spotted dolphins, and humpback whales.</p>
+      <p>Commercial fishing here generates over $100M per year — but the hidden cost in bycatch is enormous. NC DMF data shows tens of thousands of non-target interactions every year.</p>
+      <a href="/assessor" class="btn-primary" style="display:inline-block;margin-top:1.5rem;">Use the Risk Assessor</a>
     </div>
-    <div class="split-visual">
-      <div class="coast-map">
-        <div class="map-label map-ob">Outer Banks</div>
-        <div class="map-label map-ch">Cape Hatteras</div>
-        <div class="map-label map-ps">Pamlico Sound</div>
-        <div class="hotspot hs1"></div>
-        <div class="hotspot hs2"></div>
-        <div class="hotspot hs3"></div>
-        <svg class="coast-svg" viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M200,20 C210,60 215,100 205,140 C195,180 220,200 210,240 C200,280 180,300 160,340 C145,370 130,390 120,395" stroke="#22d3c8" stroke-width="3" stroke-dasharray="6,4" fill="none" opacity="0.6"/>
-          <path d="M200,20 C190,30 185,50 180,80 C175,110 170,130 165,160 C160,190 155,210 150,240 C145,265 140,285 135,310 C130,330 125,355 120,395 L60,395 L60,20 Z" fill="#0a3d4a" opacity="0.4"/>
-          <circle cx="195" cy="130" r="6" fill="#22d3c8" opacity="0.9"/>
-          <circle cx="205" cy="200" r="8" fill="#f97316" opacity="0.8"/>
-          <circle cx="185" cy="270" r="5" fill="#22d3c8" opacity="0.7"/>
+    <div class="split-map reveal">
+      <div class="map-card">
+        <svg viewBox="0 0 280 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="380" fill="#071624" rx="12"/>
+          <path d="M180,20 C188,55 192,90 185,130 C178,168 198,192 190,232 C182,270 165,292 148,330 C136,358 122,375 114,378" stroke="#22d3c8" stroke-width="2.5" stroke-dasharray="7,4" fill="none" opacity="0.7"/>
+          <path d="M180,20 C172,28 168,48 163,76 C158,104 154,124 150,152 C146,178 142,198 138,224 C134,248 130,268 126,292 C122,312 118,338 114,378 L55,378 L55,20 Z" fill="#0a2d3d" opacity="0.5"/>
+          <circle cx="178" cy="118" r="7" fill="#f97316" opacity="0.9"><animate attributeName="r" values="7;11;7" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0.4;0.9" dur="2.5s" repeatCount="indefinite"/></circle>
+          <circle cx="188" cy="188" r="9" fill="#f97316" opacity="0.8"><animate attributeName="r" values="9;14;9" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0.3;0.8" dur="3s" repeatCount="indefinite"/></circle>
+          <circle cx="170" cy="255" r="6" fill="#eab308" opacity="0.7"><animate attributeName="r" values="6;9;6" dur="3.5s" repeatCount="indefinite"/></circle>
+          <text x="192" y="122" fill="#22d3c8" font-size="9" font-family="sans-serif" opacity="0.8">Outer Banks</text>
+          <text x="196" y="192" fill="#22d3c8" font-size="9" font-family="sans-serif" opacity="0.8">Cape Hatteras</text>
+          <text x="75" y="245" fill="#6a9aaa" font-size="9" font-family="sans-serif">Pamlico Sound</text>
+          <text x="20" y="360" fill="#22d3c8" font-size="8" font-family="sans-serif" opacity="0.5">● high risk  ● medium risk</text>
         </svg>
       </div>
     </div>
   </div>
 </section>
 
-<section class="how-it-works">
+<section class="section">
   <div class="section-inner">
-    <div class="eyebrow">How DeepWatch Works</div>
+    <div class="eyebrow">How It Works</div>
     <h2>Prediction before the net hits water</h2>
-    <div class="steps">
+    <div class="steps reveal">
       <div class="step">
         <div class="step-num">01</div>
-        <h3>Input Conditions</h3>
-        <p>Enter your location, target species, gear type, ocean temperature, current speed, and time of day.</p>
+        <h3>Enter Conditions</h3>
+        <p>Provide your fishing location, target species, ocean temperature, current speed, migration pattern, and time of day.</p>
       </div>
-      <div class="step-arrow"></div>
+      <div class="step-arrow">→</div>
       <div class="step">
         <div class="step-num">02</div>
-        <h3>ML Analysis</h3>
-        <p>A logistic regression model trained on 1,000+ NC fishing records evaluates the risk across 9 environmental and operational factors.</p>
+        <h3>Model Analyzes</h3>
+        <p>A logistic regression model — trained on 1,000 NC fishing records — computes the probability that conditions exceed a historical risk threshold.</p>
       </div>
-      <div class="step-arrow"></div>
+      <div class="step-arrow">→</div>
       <div class="step">
         <div class="step-num">03</div>
-        <h3>Risk Score</h3>
-        <p>Get an instant 0–1 bycatch probability score with a breakdown of which factors are driving your risk — and how to reduce it.</p>
+        <h3>Get Your Score</h3>
+        <p>Receive a precise probability score (0–100%) with a factor breakdown showing exactly what's driving your risk level.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="cta-banner">
-  <div class="section-inner cta-inner">
+<section class="cta-section">
+  <div class="section-inner" style="text-align:center;padding-top:5rem;padding-bottom:5rem;">
     <h2>The ocean doesn't get a second chance.</h2>
-    <p>Know your risk before you cast.</p>
-    <a href="/assessor" class="btn-primary btn-large">Open the Risk Assessor</a>
+    <p style="color:var(--muted);font-size:18px;margin-bottom:2rem;">Know your risk before you cast.</p>
+    <a href="/assessor" class="btn-primary btn-lg">Open the Risk Assessor</a>
   </div>
 </section>
 
 <footer>
   <div class="footer-inner">
-    <span class="logo">
-      <span class="logo-mark"></span>
-      DeepWatch
-    </span>
-    <span class="footer-note">Built for SMathHacks 2026 · Under the Sea</span>
+    <span class="logo"><span class="logo-dot"></span>DeepWatch</span>
+    <span style="color:var(--muted);font-size:13px;">SMathHacks 2026 · Under the Sea · NC Coastal Data</span>
   </div>
 </footer>
 
-<script src="home.js"></script>
+<script>
+// Animated ocean canvas
+const canvas = document.getElementById('ocean-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+function resize() {
+  W = canvas.width  = canvas.offsetWidth;
+  H = canvas.height = canvas.offsetHeight;
+}
+function initParticles() {
+  particles = Array.from({length:70}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.8+0.3,
+    vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.12-.04,
+    a: Math.random()
+  }));
+}
+function drawCanvas() {
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(34,211,200,${p.a*.45})`; ctx.fill();
+    p.x+=p.vx; p.y+=p.vy;
+    p.a+=(Math.random()-.5)*.015; p.a=Math.max(.05,Math.min(.9,p.a));
+    if(p.x<-10) p.x=W+10; if(p.x>W+10) p.x=-10;
+    if(p.y<-10) p.y=H+10; if(p.y>H+10) p.y=-10;
+  });
+  requestAnimationFrame(drawCanvas);
+}
+resize(); initParticles(); drawCanvas();
+window.addEventListener('resize',()=>{resize();initParticles();});
+
+// Scroll reveal
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('revealed'); });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+</script>
 </body>
 </html>
